@@ -3416,6 +3416,27 @@ namespace MediaBrowser.Controller.MediaEncoding
                     targetAr);
             }
 
+            if (options.EnableUpscaling
+                && videoWidth.HasValue && videoHeight.HasValue
+                && !requestedWidth.HasValue && !requestedHeight.HasValue
+                && !requestedMaxWidth.HasValue && !requestedMaxHeight.HasValue)
+            {
+                var target = options.UpscaleMode == UpscaleMode.UHD4K
+                    ? (Width: 3840, Height: 2160)
+                    : (Width: 1920, Height: 1080);
+
+                if (videoWidth.Value < target.Width || videoHeight.Value < target.Height)
+                {
+                    var scaleW = (double)target.Width / videoWidth.Value;
+                    var scaleH = (double)target.Height / videoHeight.Value;
+                    var scale = Math.Min(scaleW, scaleH);
+
+                    var width = 2 * (int)((videoWidth.Value * scale) / 2);
+                    var height = 2 * (int)((videoHeight.Value * scale) / 2);
+                    return GetFixedSwScaleFilter(threedFormat, width, height);
+                }
+            }
+
             return string.Empty;
         }
 

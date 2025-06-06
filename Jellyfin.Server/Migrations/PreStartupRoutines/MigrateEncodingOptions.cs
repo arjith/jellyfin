@@ -136,7 +136,9 @@ public class MigrateEncodingOptions : IMigrationRoutine
             AllowAv1Encoding = oldConfig.AllowAv1Encoding,
             EnableSubtitleExtraction = oldConfig.EnableSubtitleExtraction,
             HardwareDecodingCodecs = oldConfig.HardwareDecodingCodecs,
-            AllowOnDemandMetadataBasedKeyframeExtractionForExtensions = oldConfig.AllowOnDemandMetadataBasedKeyframeExtractionForExtensions
+            AllowOnDemandMetadataBasedKeyframeExtractionForExtensions = oldConfig.AllowOnDemandMetadataBasedKeyframeExtractionForExtensions,
+            EnableUpscaling = false,
+            UpscaleMode = UpscaleMode.FullHD1080p
         };
 
         var newSerializer = new XmlSerializer(typeof(EncodingOptions));
@@ -235,5 +237,9 @@ public class MigrateEncodingOptions : IMigrationRoutine
         public string[] HardwareDecodingCodecs { get; set; }
 
         public string[] AllowOnDemandMetadataBasedKeyframeExtractionForExtensions { get; set; }
+
+        public bool EnableUpscaling { get; set; }
+
+        public UpscaleMode UpscaleMode { get; set; }
     }
 }
