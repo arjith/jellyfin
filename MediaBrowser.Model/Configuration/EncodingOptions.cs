@@ -59,6 +59,8 @@ public class EncodingOptions
         EnableSubtitleExtraction = true;
         AllowOnDemandMetadataBasedKeyframeExtractionForExtensions = ["mkv"];
         HardwareDecodingCodecs = ["h264", "vc1"];
+        EnableUpscaling = false;
+        UpscaleMode = UpscaleMode.FullHD1080p;
     }
 
     /// <summary>
@@ -295,4 +297,14 @@ public class EncodingOptions
     /// Gets or sets the file extensions on-demand metadata based keyframe extraction is enabled for.
     /// </summary>
     public string[] AllowOnDemandMetadataBasedKeyframeExtractionForExtensions { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether video upscaling is enabled.
+    /// </summary>
+    public bool EnableUpscaling { get; set; }
+
+    /// <summary>
+    /// Gets or sets the target resolution for upscaling.
+    /// </summary>
+    public UpscaleMode UpscaleMode { get; set; }
 }
