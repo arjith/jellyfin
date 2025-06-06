@@ -397,7 +397,7 @@ public sealed class RecordingsManager : IRecordingsManager, IDisposable
 
         DeleteFileIfEmpty(recordingPath);
         TriggerRefresh(recordingPath);
-        _libraryMonitor.ReportFileSystemChangeComplete(recordingPath, false);
+        await _libraryMonitor.ReportFileSystemChangeComplete(recordingPath, false).ConfigureAwait(false);
         _activeRecordings.TryRemove(timer.Id, out _);
 
         if (recordingStatus != RecordingStatus.Completed && DateTime.UtcNow < timer.EndDate && timer.RetryCount < 10)

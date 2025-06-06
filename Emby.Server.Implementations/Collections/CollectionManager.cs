@@ -192,7 +192,7 @@ namespace Emby.Server.Implementations.Collections
             finally
             {
                 // Refresh handled internally
-                _iLibraryMonitor.ReportFileSystemChangeComplete(path, false);
+                await _iLibraryMonitor.ReportFileSystemChangeComplete(path, false).ConfigureAwait(false);
             }
         }
 
