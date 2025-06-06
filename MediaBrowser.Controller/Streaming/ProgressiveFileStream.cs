@@ -80,23 +80,9 @@ public class ProgressiveFileStream : Stream
     /// <inheritdoc />
     public override int Read(Span<byte> buffer)
     {
-        int totalBytesRead = 0;
-        var stopwatch = Stopwatch.StartNew();
-
-        while (true)
-        {
-            totalBytesRead += _stream.Read(buffer);
-            if (StopReading(totalBytesRead, stopwatch.ElapsedMilliseconds))
-            {
-                break;
-            }
-
-            Thread.Sleep(50);
-        }
-
-        UpdateBytesWritten(totalBytesRead);
-
-        return totalBytesRead;
+        var bytesRead = _stream.Read(buffer);
+        UpdateBytesWritten(bytesRead);
+        return bytesRead;
     }
 
     /// <inheritdoc />
