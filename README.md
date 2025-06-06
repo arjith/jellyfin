@@ -173,6 +173,8 @@ This repository also includes unit tests that are used to validate functionality
 1. Run tests from the command line using `dotnet test`
    If the `dotnet` CLI is missing, install the required SDK by running:
    `curl -L https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 9.0`
+   and add the installed tools to your `PATH` with:
+   `export PATH="$HOME/.dotnet:$PATH"`
 2. Run tests in Visual Studio using the [Test Explorer](https://docs.microsoft.com/en-us/visualstudio/test/run-unit-tests-with-test-explorer)
 3. Run individual tests in Visual Studio Code using the associated [CodeLens annotation](https://github.com/OmniSharp/omnisharp-vscode/wiki/How-to-run-and-debug-unit-tests)
 
