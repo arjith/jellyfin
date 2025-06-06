@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using MediaBrowser.Model.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -34,7 +35,7 @@ public sealed class IntervalTrigger : ITaskTrigger, IDisposable
     public TaskOptions TaskOptions { get; }
 
     /// <inheritdoc />
-    public void Start(TaskResult? lastResult, ILogger logger, string taskName, bool isApplicationStartup)
+    public Task Start(TaskResult? lastResult, ILogger logger, string taskName, bool isApplicationStartup)
     {
         DisposeTimer();
 
@@ -60,6 +61,8 @@ public sealed class IntervalTrigger : ITaskTrigger, IDisposable
         }
 
         _timer = new Timer(_ => OnTriggered(), null, dueTime, TimeSpan.FromMilliseconds(-1));
+
+        return Task.CompletedTask;
     }
 
     /// <inheritdoc />

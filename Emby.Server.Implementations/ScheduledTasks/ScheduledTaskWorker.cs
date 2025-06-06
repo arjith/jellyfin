@@ -186,7 +186,7 @@ public class ScheduledTaskWorker : IScheduledTaskWorker
 
             _triggers = value.ToArray();
 
-            ReloadTriggerEvents(false);
+            ReloadTriggerEvents(false).GetAwaiter().GetResult();
         }
     }
 
@@ -223,20 +223,20 @@ public class ScheduledTaskWorker : IScheduledTaskWorker
     private void InitTriggerEvents()
     {
         _triggers = LoadTriggers();
-        ReloadTriggerEvents(true);
+        ReloadTriggerEvents(true).GetAwaiter().GetResult();
     }
 
     /// <inheritdoc />
-    public void ReloadTriggerEvents()
+    public Task ReloadTriggerEvents()
     {
-        ReloadTriggerEvents(false);
+        return ReloadTriggerEvents(false);
     }
 
     /// <summary>
     /// Reloads the trigger events.
     /// </summary>
     /// <param name="isApplicationStartup">if set to <c>true</c> [is application startup].</param>
-    private void ReloadTriggerEvents(bool isApplicationStartup)
+    private async Task ReloadTriggerEvents(bool isApplicationStartup)
     {
         foreach (var triggerInfo in InternalTriggers)
         {
@@ -246,7 +246,7 @@ public class ScheduledTaskWorker : IScheduledTaskWorker
 
             trigger.Triggered -= OnTriggerTriggered;
             trigger.Triggered += OnTriggerTriggered;
-            trigger.Start(LastExecutionResult, _logger, Name, isApplicationStartup);
+            await trigger.Start(LastExecutionResult, _logger, Name, isApplicationStartup).ConfigureAwait(false);
         }
     }
 
@@ -272,7 +272,7 @@ public class ScheduledTaskWorker : IScheduledTaskWorker
 
         await Task.Delay(1000).ConfigureAwait(false);
 
-        trigger.Start(LastExecutionResult, _logger, Name, false);
+        await trigger.Start(LastExecutionResult, _logger, Name, false).ConfigureAwait(false);
     }
 
     /// <summary>

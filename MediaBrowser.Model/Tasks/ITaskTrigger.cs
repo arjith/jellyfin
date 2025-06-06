@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace MediaBrowser.Model.Tasks
@@ -25,7 +26,8 @@ namespace MediaBrowser.Model.Tasks
         /// <param name="logger">The <see cref="ILogger"/>.</param>
         /// <param name="taskName">The name of the task.</param>
         /// <param name="isApplicationStartup">Whether or not this is fired during startup.</param>
-        void Start(TaskResult? lastResult, ILogger logger, string taskName, bool isApplicationStartup);
+        /// <returns>A <see cref="Task"/> representing the operation.</returns>
+        Task Start(TaskResult? lastResult, ILogger logger, string taskName, bool isApplicationStartup);
 
         /// <summary>
         /// Stops waiting for the trigger action.
