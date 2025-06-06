@@ -28,12 +28,18 @@ public sealed class StartupTrigger : ITaskTrigger
     public TaskOptions TaskOptions { get; }
 
     /// <inheritdoc />
-    public async void Start(TaskResult? lastResult, ILogger logger, string taskName, bool isApplicationStartup)
+    public Task Start(TaskResult? lastResult, ILogger logger, string taskName, bool isApplicationStartup)
     {
         if (isApplicationStartup)
         {
-            await Task.Delay(DelayMs).ConfigureAwait(false);
+            return DelayStart();
+        }
 
+        return Task.CompletedTask;
+
+        async Task DelayStart()
+        {
+            await Task.Delay(DelayMs).ConfigureAwait(false);
             OnTriggered();
         }
     }
