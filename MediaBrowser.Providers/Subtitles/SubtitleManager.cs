@@ -269,7 +269,7 @@ namespace MediaBrowser.Providers.Subtitles
                 }
                 finally
                 {
-                    _monitor.ReportFileSystemChangeComplete(path, false);
+                    await _monitor.ReportFileSystemChangeComplete(path, false).ConfigureAwait(false);
                 }
 
                 stream.Position = 0;
@@ -348,7 +348,7 @@ namespace MediaBrowser.Providers.Subtitles
         }
 
         /// <inheritdoc />
-        public Task DeleteSubtitles(BaseItem item, int index)
+        public async Task DeleteSubtitles(BaseItem item, int index)
         {
             var stream = _mediaSourceManager.GetMediaStreams(new MediaStreamQuery
             {
@@ -366,10 +366,10 @@ namespace MediaBrowser.Providers.Subtitles
             }
             finally
             {
-                _monitor.ReportFileSystemChangeComplete(path, false);
+                await _monitor.ReportFileSystemChangeComplete(path, false).ConfigureAwait(false);
             }
 
-            return item.RefreshMetadata(CancellationToken.None);
+            return await item.RefreshMetadata(CancellationToken.None).ConfigureAwait(false);
         }
 
         /// <inheritdoc />

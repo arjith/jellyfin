@@ -20,4 +20,3 @@ public enum UpscaleMode
     /// </summary>
     UHD4K = 2
 }
-

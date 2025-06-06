@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using J2N.Collections.Generic.Extensions;
 using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Net;
@@ -146,10 +147,10 @@ public class NetworkManager : INetworkManager, IDisposable
     /// </summary>
     /// <param name="sender">Sender.</param>
     /// <param name="e">A <see cref="NetworkAvailabilityEventArgs"/> containing network availability information.</param>
-    private void OnNetworkAvailabilityChanged(object? sender, NetworkAvailabilityEventArgs e)
+    private async void OnNetworkAvailabilityChanged(object? sender, NetworkAvailabilityEventArgs e)
     {
         _logger.LogDebug("Network availability changed.");
-        HandleNetworkChange();
+        await HandleNetworkChange().ConfigureAwait(false);
     }
 
     /// <summary>
@@ -157,36 +158,43 @@ public class NetworkManager : INetworkManager, IDisposable
     /// </summary>
     /// <param name="sender">Sender.</param>
     /// <param name="e">An <see cref="EventArgs"/>.</param>
-    private void OnNetworkAddressChanged(object? sender, EventArgs e)
+    private async void OnNetworkAddressChanged(object? sender, EventArgs e)
     {
         _logger.LogDebug("Network address change detected.");
-        HandleNetworkChange();
+        await HandleNetworkChange().ConfigureAwait(false);
     }
 
     /// <summary>
     /// Triggers our event, and re-loads interface information.
     /// </summary>
-    private void HandleNetworkChange()
+    private async Task HandleNetworkChange()
     {
+        var shouldHandle = false;
+
         lock (_networkEventLock)
         {
             if (!_eventfire)
             {
                 // As network events tend to fire one after the other only fire once every second.
                 _eventfire = true;
-                OnNetworkChange();
+                shouldHandle = true;
             }
+        }
+
+        if (shouldHandle)
+        {
+            await OnNetworkChange().ConfigureAwait(false);
         }
     }
 
     /// <summary>
     /// Waits for 2 seconds before re-initialising the settings, as typically these events fire multiple times in succession.
     /// </summary>
-    private void OnNetworkChange()
+    private async Task OnNetworkChange()
     {
         try
         {
-            Thread.Sleep(2000);
+            await Task.Delay(2000).ConfigureAwait(false);
             var networkConfig = _configurationManager.GetNetworkConfiguration();
             if (IsIPv6Enabled && !Socket.OSSupportsIPv6)
             {

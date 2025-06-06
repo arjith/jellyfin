@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using MediaBrowser.Model.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -35,13 +36,14 @@ public sealed class WeeklyTrigger : ITaskTrigger, IDisposable
     public TaskOptions TaskOptions { get; }
 
     /// <inheritdoc />
-    public void Start(TaskResult? lastResult, ILogger logger, string taskName, bool isApplicationStartup)
+    public Task Start(TaskResult? lastResult, ILogger logger, string taskName, bool isApplicationStartup)
     {
         DisposeTimer();
 
         var triggerDate = GetNextTriggerDateTime();
+        _timer = new Timer(_ => OnTriggered(), null, triggerDate - DateTime.UtcNow, TimeSpan.FromMilliseconds(-1));
 
-        _timer = new Timer(_ => OnTriggered(), null, triggerDate - DateTime.Now, TimeSpan.FromMilliseconds(-1));
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -50,7 +52,7 @@ public sealed class WeeklyTrigger : ITaskTrigger, IDisposable
     /// <returns>DateTime.</returns>
     private DateTime GetNextTriggerDateTime()
     {
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         // If it's on the same day
         if (now.DayOfWeek == _dayOfWeek)

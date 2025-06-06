@@ -19,6 +19,7 @@ namespace Emby.Server.Implementations.Session
         private readonly ILogger<WebSocketController> _logger;
         private readonly ISessionManager _sessionManager;
         private readonly SessionInfo _session;
+        private readonly EventHandler<EventArgs> _connectionClosedHandler;
 
         private readonly List<IWebSocketConnection> _sockets;
         private readonly ReaderWriterLockSlim _socketsLock;
@@ -34,6 +35,7 @@ namespace Emby.Server.Implementations.Session
             _sessionManager = sessionManager;
             _sockets = new();
             _socketsLock = new();
+            _connectionClosedHandler = async (s, e) => await OnConnectionClosed(s, e).ConfigureAwait(false);
         }
 
         private bool HasOpenSockets
@@ -67,7 +69,7 @@ namespace Emby.Server.Implementations.Session
             {
                 _socketsLock.EnterWriteLock();
                 _sockets.Add(connection);
-                connection.Closed += OnConnectionClosed;
+                connection.Closed += _connectionClosedHandler;
             }
             finally
             {
@@ -75,7 +77,7 @@ namespace Emby.Server.Implementations.Session
             }
         }
 
-        private async void OnConnectionClosed(object? sender, EventArgs e)
+        private async Task OnConnectionClosed(object? sender, EventArgs e)
         {
             var connection = sender as IWebSocketConnection ?? throw new ArgumentException($"{nameof(sender)} is not of type {nameof(IWebSocketConnection)}", nameof(sender));
             _logger.LogDebug("Removing websocket from session {Session}", _session.Id);
@@ -84,7 +86,7 @@ namespace Emby.Server.Implementations.Session
             {
                 _socketsLock.EnterWriteLock();
                 _sockets.Remove(connection);
-                connection.Closed -= OnConnectionClosed;
+                connection.Closed -= _connectionClosedHandler;
             }
             finally
             {
@@ -141,7 +143,7 @@ namespace Emby.Server.Implementations.Session
                 _socketsLock.EnterWriteLock();
                 foreach (var socket in _sockets)
                 {
-                    socket.Closed -= OnConnectionClosed;
+                    socket.Closed -= _connectionClosedHandler;
                     socket.Dispose();
                 }
 
@@ -168,7 +170,7 @@ namespace Emby.Server.Implementations.Session
                 _socketsLock.EnterWriteLock();
                 foreach (var socket in _sockets)
                 {
-                    socket.Closed -= OnConnectionClosed;
+                    socket.Closed -= _connectionClosedHandler;
                     await socket.DisposeAsync().ConfigureAwait(false);
                 }
 
