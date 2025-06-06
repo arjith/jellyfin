@@ -41,8 +41,7 @@ public sealed class WeeklyTrigger : ITaskTrigger, IDisposable
         DisposeTimer();
 
         var triggerDate = GetNextTriggerDateTime();
-
-        _timer = new Timer(_ => OnTriggered(), null, triggerDate - DateTime.Now, TimeSpan.FromMilliseconds(-1));
+        _timer = new Timer(_ => OnTriggered(), null, triggerDate - DateTime.UtcNow, TimeSpan.FromMilliseconds(-1));
 
         return Task.CompletedTask;
     }
@@ -53,7 +52,7 @@ public sealed class WeeklyTrigger : ITaskTrigger, IDisposable
     /// <returns>DateTime.</returns>
     private DateTime GetNextTriggerDateTime()
     {
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         // If it's on the same day
         if (now.DayOfWeek == _dayOfWeek)

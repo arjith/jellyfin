@@ -217,7 +217,7 @@ namespace MediaBrowser.Providers.Manager
                 }
                 finally
                 {
-                    _libraryMonitor.ReportFileSystemChangeComplete(currentPath, false);
+                    await _libraryMonitor.ReportFileSystemChangeComplete(currentPath, false).ConfigureAwait(false);
                 }
             }
         }
@@ -310,8 +310,8 @@ namespace MediaBrowser.Providers.Manager
             }
             finally
             {
-                _libraryMonitor.ReportFileSystemChangeComplete(path, false);
-                _libraryMonitor.ReportFileSystemChangeComplete(parentFolder, false);
+                await _libraryMonitor.ReportFileSystemChangeComplete(path, false).ConfigureAwait(false);
+                await _libraryMonitor.ReportFileSystemChangeComplete(parentFolder, false).ConfigureAwait(false);
             }
         }
 

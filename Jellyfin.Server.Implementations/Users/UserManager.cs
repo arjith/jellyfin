@@ -161,7 +161,7 @@ namespace Jellyfin.Server.Implementations.Users
 #pragma warning disable CA1311 // Specify a culture or use an invariant version to avoid implicit dependency on current culture
 #pragma warning disable CA1304 // The behavior of 'string.ToUpper()' could vary based on the current user's locale settings
                 if (await dbContext.Users
-                        .AnyAsync(u => u.Username.ToUpper() == newName.ToUpper() && !u.Id.Equals(user.Id))
+                        .AnyAsync(u => u.Username.ToUpperInvariant() == newName.ToUpperInvariant() && !u.Id.Equals(user.Id))
                         .ConfigureAwait(false))
                 {
                     throw new ArgumentException(string.Format(

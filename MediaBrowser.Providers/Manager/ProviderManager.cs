@@ -699,7 +699,7 @@ namespace MediaBrowser.Providers.Manager
                     }
                     finally
                     {
-                        _libraryMonitor.ReportFileSystemChangeComplete(path, false);
+                        await _libraryMonitor.ReportFileSystemChangeComplete(path, false).ConfigureAwait(false);
                     }
                 }
                 else
