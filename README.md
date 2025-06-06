@@ -54,6 +54,7 @@ Check out our <a href="https://jellyfin.org/contribute">contributing choose-your
 
 <strong>New idea or improvement?</strong><br/>
 Check out our <a href="https://features.jellyfin.org/?view=most-wanted">feature request hub</a>.<br/>
+For insight into planned work, see the <a href="./FEATURE_PLANS.md">feature planning guide</a>.
 
 <strong>Don't see Jellyfin in your language?</strong><br/>
 Check out our <a href="https://translate.jellyfin.org">Weblate instance</a> to help translate Jellyfin and its subprojects.<br/>
