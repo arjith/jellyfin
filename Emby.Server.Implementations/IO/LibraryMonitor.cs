@@ -71,7 +71,7 @@ namespace Emby.Server.Implementations.IO
         }
 
         /// <inheritdoc />
-        public async void ReportFileSystemChangeComplete(string path, bool refreshPath)
+        public async Task ReportFileSystemChangeComplete(string path, bool refreshPath)
         {
             ArgumentException.ThrowIfNullOrEmpty(path);
 

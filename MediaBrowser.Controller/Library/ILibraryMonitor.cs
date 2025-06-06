@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace MediaBrowser.Controller.Library
 {
     /// <summary>
@@ -26,7 +28,8 @@ namespace MediaBrowser.Controller.Library
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="refreshPath">if set to <c>true</c> [refresh path].</param>
-        void ReportFileSystemChangeComplete(string path, bool refreshPath);
+        /// <returns>A <see cref="Task"/> representing the completion of the operation.</returns>
+        Task ReportFileSystemChangeComplete(string path, bool refreshPath);
 
         /// <summary>
         /// Reports the file system changed.

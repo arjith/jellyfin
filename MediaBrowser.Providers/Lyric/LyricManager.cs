@@ -228,7 +228,7 @@ public class LyricManager : ILyricManager
     }
 
     /// <inheritdoc />
-    public Task DeleteLyricsAsync(Audio audio)
+    public async Task DeleteLyricsAsync(Audio audio)
     {
         ArgumentNullException.ThrowIfNull(audio);
         var streams = _mediaSourceManager.GetMediaStreams(new MediaStreamQuery
@@ -248,11 +248,11 @@ public class LyricManager : ILyricManager
             }
             finally
             {
-                _libraryMonitor.ReportFileSystemChangeComplete(path, false);
+                await _libraryMonitor.ReportFileSystemChangeComplete(path, false).ConfigureAwait(false);
             }
         }
 
-        return audio.RefreshMetadata(CancellationToken.None);
+        await audio.RefreshMetadata(CancellationToken.None).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -454,7 +454,7 @@ public class LyricManager : ILyricManager
             }
             finally
             {
-                _libraryMonitor.ReportFileSystemChangeComplete(savePath, false);
+                await _libraryMonitor.ReportFileSystemChangeComplete(savePath, false).ConfigureAwait(false);
             }
 
             stream.Position = 0;
