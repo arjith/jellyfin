@@ -51,6 +51,7 @@ namespace Emby.Server.Implementations.Session
         /// The KeepAlive cancellation token.
         /// </summary>
         private System.Timers.Timer _keepAlive;
+        private readonly System.Timers.ElapsedEventHandler _keepAliveHandler;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SessionWebSocketListener" /> class.
@@ -71,7 +72,8 @@ namespace Emby.Server.Implementations.Session
                 AutoReset = true,
                 Enabled = false
             };
-            _keepAlive.Elapsed += KeepAliveSockets;
+            _keepAliveHandler = async (_, e) => await KeepAliveSockets(_, e).ConfigureAwait(false);
+            _keepAlive.Elapsed += _keepAliveHandler;
         }
 
         /// <inheritdoc />
@@ -80,7 +82,7 @@ namespace Emby.Server.Implementations.Session
             if (_keepAlive is not null)
             {
                 _keepAlive.Stop();
-                _keepAlive.Elapsed -= KeepAliveSockets;
+                _keepAlive.Elapsed -= _keepAliveHandler;
                 _keepAlive.Dispose();
                 _keepAlive = null!;
             }
@@ -222,7 +224,7 @@ namespace Emby.Server.Implementations.Session
         /// <summary>
         /// Checks status of KeepAlive of WebSockets.
         /// </summary>
-        private async void KeepAliveSockets(object? o, EventArgs? e)
+        private async Task KeepAliveSockets(object? o, EventArgs? e)
         {
             List<IWebSocketConnection> inactive;
             List<IWebSocketConnection> lost;
