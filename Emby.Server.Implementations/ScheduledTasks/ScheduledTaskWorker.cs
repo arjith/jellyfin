@@ -32,6 +32,7 @@ public class ScheduledTaskWorker : IScheduledTaskWorker
     private TaskResult _lastExecutionResult;
     private Task _currentTask;
     private Tuple<TaskTriggerInfo, ITaskTrigger>[] _triggers;
+    private readonly Dictionary<ITaskTrigger, EventHandler<EventArgs>> _triggerHandlers = new();
     private string _id;
 
     /// <summary>
@@ -244,8 +245,15 @@ public class ScheduledTaskWorker : IScheduledTaskWorker
 
             trigger.Stop();
 
-            trigger.Triggered -= OnTriggerTriggered;
-            trigger.Triggered += OnTriggerTriggered;
+            if (_triggerHandlers.TryGetValue(trigger, out var handler))
+            {
+                trigger.Triggered -= handler;
+            }
+
+            handler = async (sender, e) => await OnTriggerTriggered(sender, e).ConfigureAwait(false);
+            _triggerHandlers[trigger] = handler;
+
+            trigger.Triggered += handler;
             trigger.Start(LastExecutionResult, _logger, Name, isApplicationStartup);
         }
     }
@@ -255,7 +263,7 @@ public class ScheduledTaskWorker : IScheduledTaskWorker
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private async void OnTriggerTriggered(object sender, EventArgs e)
+    private async Task OnTriggerTriggered(object sender, EventArgs e)
     {
         var trigger = (ITaskTrigger)sender;
 
@@ -667,7 +675,13 @@ public class ScheduledTaskWorker : IScheduledTaskWorker
         foreach (var triggerInfo in InternalTriggers)
         {
             var trigger = triggerInfo.Item2;
-            trigger.Triggered -= OnTriggerTriggered;
+
+            if (_triggerHandlers.TryGetValue(trigger, out var handler))
+            {
+                trigger.Triggered -= handler;
+                _triggerHandlers.Remove(trigger);
+            }
+
             trigger.Stop();
             if (trigger is IDisposable disposable)
             {
