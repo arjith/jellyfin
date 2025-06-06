@@ -72,7 +72,7 @@ public static class ApplePlatformHelper
         }
         catch (Exception e)
         {
-            logger.LogError("Unknown error occured: {Exception}", e);
+            logger.LogError("Unknown error occurred: {Exception}", e);
         }
 
         return false;
