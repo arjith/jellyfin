@@ -13,24 +13,30 @@ namespace Jellyfin.Server.Implementations.Security
     {
         private readonly IDbContextFactory<JellyfinDbContext> _dbProvider;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AuthenticationManager"/> class.
-        /// </summary>
-        /// <param name="dbProvider">The database provider.</param>
         public AuthenticationManager(IDbContextFactory<JellyfinDbContext> dbProvider)
         {
             _dbProvider = dbProvider;
         }
 
         /// <inheritdoc />
-        public async Task CreateApiKey(string name)
+        public async Task<AuthenticationInfo> CreateApiKey(string name)
         {
             var dbContext = await _dbProvider.CreateDbContextAsync().ConfigureAwait(false);
             await using (dbContext.ConfigureAwait(false))
             {
-                dbContext.ApiKeys.Add(new ApiKey(name));
-
+                var createdKey = new ApiKey(name);
+                dbContext.ApiKeys.Add(createdKey);
                 await dbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                return new AuthenticationInfo
+                {
+                    AppName = createdKey.Name,
+                    AccessToken = createdKey.AccessToken,
+                    DateCreated = createdKey.DateCreated,
+                    DeviceId = string.Empty,
+                    DeviceName = string.Empty,
+                    AppVersion = string.Empty
+                };
             }
         }
 
