@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using MediaBrowser.Model.Configuration;
 
 namespace MediaBrowser.Common.Configuration
@@ -26,6 +27,7 @@ namespace MediaBrowser.Common.Configuration
         /// <exception cref="UnauthorizedAccessException">If the directory does not exist, and the caller does not have the required permission to create it.</exception>
         /// <exception cref="NotSupportedException">If there is a custom path transcoding path specified, but it is invalid.</exception>
         /// <exception cref="IOException">If the directory does not exist, and it also could not be created.</exception>
+        /// <exception cref="InvalidOperationException">If the configured path is non-empty and is not already owned by Jellyfin.</exception>
         public static string GetTranscodePath(this IConfigurationManager configurationManager)
         {
             // Get the configured path and fall back to a default
@@ -33,6 +35,15 @@ namespace MediaBrowser.Common.Configuration
             if (string.IsNullOrEmpty(transcodingTempPath))
             {
                 transcodingTempPath = Path.Combine(configurationManager.CommonApplicationPaths.CachePath, "transcodes");
+            }
+
+            var markerPath = Path.Combine(transcodingTempPath, ".jellyfin-transcode");
+            if (Directory.Exists(transcodingTempPath)
+                && !File.Exists(markerPath)
+                && Directory.EnumerateFileSystemEntries(transcodingTempPath).Any())
+            {
+                throw new InvalidOperationException(
+                    $"Refusing to use non-empty transcode directory '{transcodingTempPath}' because it is not marked as owned by Jellyfin.");
             }
 
             configurationManager.CommonApplicationPaths.CreateAndCheckMarker(transcodingTempPath, "transcode", true);
