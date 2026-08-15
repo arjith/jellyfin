@@ -50,12 +50,7 @@ namespace MediaBrowser.Common.Configuration
             return transcodingTempPath;
         }
 
-        /// <summary>
-        /// Determines whether a custom transcode directory can safely be claimed by Jellyfin.
-        /// </summary>
-        /// <param name="path">The directory path.</param>
-        /// <returns><see langword="true"/> if the path does not exist, is empty, or already contains Jellyfin's transcode marker.</returns>
-        internal static bool CanClaimTranscodeDirectory(string path)
+        private static bool CanClaimTranscodeDirectory(string path)
         {
             if (!Directory.Exists(path))
             {
