@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using MediaBrowser.Model.Configuration;
 
 namespace MediaBrowser.Common.Configuration
@@ -9,6 +10,8 @@ namespace MediaBrowser.Common.Configuration
     /// </summary>
     public static class EncodingConfigurationExtensions
     {
+        private const string TranscodeMarkerName = ".jellyfin-transcode";
+
         /// <summary>
         /// Gets the encoding options.
         /// </summary>
@@ -26,17 +29,45 @@ namespace MediaBrowser.Common.Configuration
         /// <exception cref="UnauthorizedAccessException">If the directory does not exist, and the caller does not have the required permission to create it.</exception>
         /// <exception cref="NotSupportedException">If there is a custom path transcoding path specified, but it is invalid.</exception>
         /// <exception cref="IOException">If the directory does not exist, and it also could not be created.</exception>
+        /// <exception cref="InvalidOperationException">If the configured custom path is non-empty and is not already owned by Jellyfin.</exception>
         public static string GetTranscodePath(this IConfigurationManager configurationManager)
         {
             // Get the configured path and fall back to a default
             var transcodingTempPath = configurationManager.GetEncodingOptions().TranscodingTempPath;
-            if (string.IsNullOrEmpty(transcodingTempPath))
+            var isCustomPath = !string.IsNullOrEmpty(transcodingTempPath);
+            if (!isCustomPath)
             {
                 transcodingTempPath = Path.Combine(configurationManager.CommonApplicationPaths.CachePath, "transcodes");
             }
 
+            if (isCustomPath && !CanClaimTranscodeDirectory(transcodingTempPath))
+            {
+                throw new InvalidOperationException(
+                    $"Refusing to use non-empty transcode directory '{transcodingTempPath}' because it is not marked as owned by Jellyfin.");
+            }
+
             configurationManager.CommonApplicationPaths.CreateAndCheckMarker(transcodingTempPath, "transcode", true);
             return transcodingTempPath;
+        }
+
+        /// <summary>
+        /// Determines whether a custom transcode directory can safely be claimed by Jellyfin.
+        /// </summary>
+        /// <param name="path">The directory path.</param>
+        /// <returns><see langword="true"/> if the path does not exist, is empty, or already contains Jellyfin's transcode marker.</returns>
+        internal static bool CanClaimTranscodeDirectory(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                return true;
+            }
+
+            if (File.Exists(Path.Combine(path, TranscodeMarkerName)))
+            {
+                return true;
+            }
+
+            return !Directory.EnumerateFileSystemEntries(path).Any();
         }
     }
 }
