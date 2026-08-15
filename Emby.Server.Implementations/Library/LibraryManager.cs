@@ -2452,7 +2452,7 @@ namespace Emby.Server.Implementations.Library
         {
             if (image.Path is not null && image.IsLocalFile)
             {
-                if (image.Width == 0 || image.Height == 0 || string.IsNullOrEmpty(image.BlurHash))
+                if (image.Width == 0 || image.Height == 0 || image.BlurHash is null)
                 {
                     return true;
                 }
